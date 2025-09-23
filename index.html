@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Ian & Lala — Income / Expense / Transfer Tracker (no Transfer Type)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --pad: 16px; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #f7f7f8; color: #111; }
+    header { padding: 24px; background: white; border-bottom: 1px solid #e5e5e7; position: sticky; top: 0; z-index: 10; }
+    h1 { margin: 0; font-size: 20px; }
+    main { max-width: 960px; margin: 24px auto; padding: 0 16px 48px; }
+    .card { background: white; border: 1px solid #e5e5e7; border-radius: 12px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .group { margin: 12px 0; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 10px; background: #fff; font: inherit;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .hidden { display: none !important; }
+    .muted { color: #667085; font-size: 13px; }
+    button {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 10px; border: 1px solid #1f6feb;
+      background: #2563eb; color: #fff; font-weight: 600; cursor: pointer;
+    }
+    button.secondary { background: #fff; color: #111; border-color: #d0d5dd; }
+    .banner { padding: 12px 14px; border-radius: 10px; margin: 12px 0; }
+    .success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .divider { height: 1px; background: #eee; margin: 16px 0; }
+    details { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Income / Expense / Transfer Tracker</h1>
+    <div class="muted">Who → Category → adaptive questions. Transfer section has no “Transfer Type”.</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <form id="trackerForm" novalidate>
+        <!-- 1) Who -->
+        <div class="group">
+          <label for="who">1) Who are you?</label>
+          <select id="who" name="who" required>
+            <option value="">-- Select --</option>
+            <option value="Lala">Lala</option>
+            <option value="Ian">Ian</option>
+          </select>
+        </div>
+
+        <!-- 2) Category -->
+        <div class="group">
+          <label for="category">2) Category</label>
+          <select id="category" name="category" required>
+            <option value="">-- Select --</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="transfer">Transfer</option>
+          </select>
+        </div>
+
+        <!-- INCOME PATH -->
+        <div id="incomeGroup" class="hidden">
+          <div class="divider"></div>
+          <h3>Income</h3>
+          <div class="row">
+            <div class="group">
+              <label for="incomeType">3) Income Type</label>
+              <select id="incomeType" name="income_type">
+                <option value="">-- Select --</option>
+                <option>Salary</option>
+                <option>Commission</option>
+                <option>Extra Fund</option>
+                <option>Receivables</option>
+              </select>
+            </div>
+            <div class="group">
+              <label for="incomeDest">4) Kept in (Destination)</label>
+              <select id="incomeDest" name="income_dest">
+                <option value="">-- Select --</option>
+              </select>
+              <div class="muted">Options adapt to Lala or Ian’s savings & wallets + Cash.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="group">
+              <label for="incomeAmount">5) Amount (PHP)</label>
+              <input type="number" id="incomeAmount" name="income_amount" min="1" inputmode="numeric" />
+            </div>
+            <div class="group">
+              <label for="incomeNote">Note (optional)</label>
+              <input type="text" id="incomeNote" name="income_note" placeholder="e.g., client, period, remarks" />
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPENSE PATH -->
+        <div id="expenseGroup" class="hidden">
+          <div class="divider"></div>
+          <h3>Expense</h3>
+          <div class="row">
+            <div class="group">
+              <label for="expenseCategory">3) Expense Category</label>
+              <select id="expenseCategory" name="expense_category">
+                <option value="">-- Select --</option>
+                <option>Mortgage / Housing Loan</option>
+                <option>Utilities & Bills</option>
+                <option>Car / Transportation</option>
+                <option>Debt & Payables</option>
+                <option>Food Groceries</option>
+                <option>Non-Food Groceries</option>
+                <option>Pets</option>
+                <option>Medical & Maintenance Medications</option>
+                <option>Dining Out / Entertainment</option>
+                <option>Clothing & Shopping</option>
+                <option>Travel / Leisure Fund</option>
+                <option>Socials / Gifts / Small rewards / Minor Emergencies</option>
+              </select>
+            </div>
+            <div class="group">
+              <label for="expensePaidFrom">Paid From (Account)</label>
+              <select id="expensePaidFrom" name="expense_paid_from">
+                <option value="">-- Select --</option>
+              </select>
+              <div class="muted">Pick a savings/wallet, a credit card, or Cash under the selected person.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="group">
+              <label for="expenseAmount">Amount (PHP)</label>
+              <input type="number" id="expenseAmount" name="expense_amount" min="1" inputmode="numeric" />
+            </div>
+            <div class="group">
+              <label for="expenseNote">Note (optional)</label>
+              <input type="text" id="expenseNote" name="expense_note" placeholder="e.g., billing month, merchant, etc." />
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSFER PATH (no transfer type) -->
+        <div id="transferGroup" class="hidden">
+          <div class="divider"></div>
+          <h3>Transfer</h3>
+          <div class="row">
+            <div class="group">
+              <label for="transferFromWho">3) From — Who?</label>
+              <select id="transferFromWho" name="transfer_from_who">
+                <option value="">-- Select --</option>
+                <option value="Lala">Lala</option>
+                <option value="Ian">Ian</option>
+              </select>
+            </div>
+            <div class="group">
+              <label for="fromAccount">Which Account? (From)</label>
+              <select id="fromAccount" name="from_account">
+                <option value="">-- Select --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="group">
+              <label for="transferToWho">4) To — Who?</label>
+              <select id="transferToWho" name="transfer_to_who">
+                <option value="">-- Select --</option>
+                <option value="Lala">Lala</option>
+                <option value="Ian">Ian</option>
+              </select>
+            </div>
+            <div class="group">
+              <label for="toAccount">Which Account? (To)</label>
+              <select id="toAccount" name="to_account">
+                <option value="">-- Select --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="group">
+              <label for="transferAmount">Amount (PHP)</label>
+              <input type="number" id="transferAmount" name="transfer_amount" min="1" inputmode="numeric" />
+            </div>
+            <div class="group">
+              <label for="transferNote">Note (optional)</label>
+              <input type="text" id="transferNote" name="transfer_note" placeholder="e.g., allowance, reimbursement, pocket-to-pocket, etc." />
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Connection + submit -->
+        <div id="status" class="banner hidden"></div>
+        <div class="group" style="display:flex; gap:8px; align-items:center;">
+          <button type="submit">Submit to Google Sheet</button>
+          <button type="button" class="secondary" id="resetBtn">Reset</button>
+          <span class="muted">This appends a new row to your Sheet.</span>
+        </div>
+
+        <input type="hidden" id="localTimestamp" name="localTimestamp" />
+      </form>
+    </section>
+
+    <section class="card" style="margin-top:16px;">
+      <details>
+        <summary><strong>Connection Settings</strong> (paste your Apps Script Web App URL if not saved in the file)</summary>
+        <p class="muted">
+          Deploy the accompanying <em>Code.gs</em> in Apps Script as a Web App, then paste the URL here.
+          You can also pass <code>?script=YOUR_URL</code> in this page URL.
+        </p>
+        <div class="row">
+          <div class="group">
+            <label for="scriptUrl">Web App URL</label>
+            <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" />
+          </div>
+          <div class="group">
+            <label>&nbsp;</label>
+            <button type="button" class="secondary" id="saveScriptUrl">Use this URL</button>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    // ===== CONFIG: Apps Script Web App URL =====
+    let SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVvh2AjGmDeGQXHfizJDbVwfTAp1zAlc7R-_jJnD_llzD7HrbsbUFwCBEZJsNOLach/exec"; // paste your deployed web app URL here if you want it hard-coded
+
+    // Allow override via query string or the UI
+    const params = new URLSearchParams(location.search);
+    if (params.get('script')) SCRIPT_URL = params.get('script');
+    document.getElementById('saveScriptUrl').addEventListener('click', () => {
+      const val = document.getElementById('scriptUrl').value.trim();
+      if (val) {
+        SCRIPT_URL = val;
+        alert('Saved! Submissions will go to:\\n' + SCRIPT_URL);
+      } else {
+        alert('Please paste a valid Web App URL.');
+      }
+    });
+
+    // ===== Data definitions =====
+    const accounts = {
+      Lala: {
+        savings: [
+          'PNB Savings',
+          'UB Payroll',
+          'BDO Commission',
+          'GCASH (Digital pocket)',
+          'Paymaya (Digital pocket)',
+          'Cash'
+        ],
+        credit: [
+          'PNB Ze-Lo',
+          'UB Basic Blue',
+          'UB Gold Go Rewards',
+          'UB Platinum',
+          'BDO Visa Classic'
+        ]
+      },
+      Ian: {
+        savings: [
+          'UB Payroll',
+          'BDO Commission',
+          'GCASH (digital pocket)',
+          'BPI',
+          'PNB Savings',
+          'Cash'
+        ],
+        credit: [
+          'BPI Blue',
+          'BPI Gold',
+          'UB Platinum'
+        ]
+      }
+    };
+
+    // ===== DOM refs =====
+    const whoEl = document.getElementById('who');
+    const categoryEl = document.getElementById('category');
+
+    const incomeGroup = document.getElementById('incomeGroup');
+    const expenseGroup = document.getElementById('expenseGroup');
+    const transferGroup = document.getElementById('transferGroup');
+
+    // Income refs
+    const incomeDestEl = document.getElementById('incomeDest');
+
+    // Expense refs
+    const expensePaidFromEl = document.getElementById('expensePaidFrom');
+
+    // Transfer refs
+    const transferFromWhoEl = document.getElementById('transferFromWho');
+    const fromAccountEl = document.getElementById('fromAccount');
+    const transferToWhoEl = document.getElementById('transferToWho');
+    const toAccountEl = document.getElementById('toAccount');
+
+    const statusEl = document.getElementById('status');
+    const form = document.getElementById('trackerForm');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // ===== Helpers to populate selects =====
+    function clearOptions(sel) {
+      while (sel.options.length > 1) sel.remove(1);
+    }
+
+    function populateIncomeDest(who) {
+      clearOptions(incomeDestEl);
+      if (!who) return;
+      (accounts[who].savings || []).forEach(acc => {
+        const opt = document.createElement('option');
+        opt.textContent = acc;
+        opt.value = acc;
+        incomeDestEl.appendChild(opt);
+      });
+    }
+
+    function populateExpensePaidFrom(who) {
+      clearOptions(expensePaidFromEl);
+      if (!who) return;
+      const grp1 = document.createElement('optgroup');
+      grp1.label = who + ' — Savings & Wallets + Cash';
+      (accounts[who].savings || []).forEach(acc => {
+        const opt = document.createElement('option');
+        opt.textContent = acc;
+        opt.value = acc;
+        grp1.appendChild(opt);
+      });
+
+      const grp2 = document.createElement('optgroup');
+      grp2.label = who + ' — Credit Cards';
+      (accounts[who].credit || []).forEach(acc => {
+        const opt = document.createElement('option');
+        opt.textContent = acc;
+        opt.value = acc;
+        grp2.appendChild(opt);
+      });
+
+      expensePaidFromEl.appendChild(grp1);
+      expensePaidFromEl.appendChild(grp2);
+    }
+
+    function populateTransferAccounts(fromWho, toWho) {
+      // FROM: savings/wallets only (no credit cards), exclude 'Cash'
+      clearOptions(fromAccountEl);
+      if (fromWho) {
+        const grpFrom = document.createElement('optgroup');
+        grpFrom.label = fromWho + ' — Savings & Wallets';
+        (accounts[fromWho].savings || [])
+          .filter(acc => acc.toLowerCase() !== 'cash')
+          .forEach(acc => {
+            const opt = document.createElement('option');
+            opt.textContent = acc;
+            opt.value = fromWho + ' — ' + acc;
+            grpFrom.appendChild(opt);
+          });
+        fromAccountEl.appendChild(grpFrom);
+      }
+
+      clearOptions(toAccountEl);
+      if (toWho) {
+        const grpTo = document.createElement('optgroup');
+        grpTo.label = toWho + ' — Savings & Wallets';
+        (accounts[toWho].savings || [])
+          .filter(acc => acc.toLowerCase() !== 'cash')
+          .forEach(acc => {
+            const opt = document.createElement('option');
+            opt.textContent = acc;
+            opt.value = toWho + ' — ' + acc;
+            grpTo.appendChild(opt);
+          });
+        toAccountEl.appendChild(grpTo);
+      }
+    }
+
+    // ===== Show/hide path groups and set requireds =====
+    const requiredByPath = {
+      income: ['incomeType','incomeDest','incomeAmount'],
+      expense: ['expenseCategory','expensePaidFrom','expenseAmount'],
+      transfer: ['transferFromWho','fromAccount','transferToWho','toAccount','transferAmount']
+    };
+
+    function setRequiredForPath(path) {
+      const all = [
+        'incomeType','incomeDest','incomeAmount',
+        'expenseCategory','expensePaidFrom','expenseAmount',
+        'transferFromWho','fromAccount','transferToWho','toAccount','transferAmount'
+      ].map(id => document.getElementById(id));
+      all.forEach(el => el && el.removeAttribute('required'));
+      (requiredByPath[path] || []).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('required','required');
+      });
+    }
+
+    function showPath(cat) {
+      incomeGroup.classList.add('hidden');
+      expenseGroup.classList.add('hidden');
+      transferGroup.classList.add('hidden');
+      if (cat === 'income') incomeGroup.classList.remove('hidden');
+      if (cat === 'expense') expenseGroup.classList.remove('hidden');
+      if (cat === 'transfer') transferGroup.classList.remove('hidden');
+      setRequiredForPath(cat);
+    }
+
+    // Event listeners
+    whoEl.addEventListener('change', () => {
+      const who = whoEl.value;
+      populateIncomeDest(who);
+      populateExpensePaidFrom(who);
+    });
+
+    categoryEl.addEventListener('change', () => {
+      showPath(categoryEl.value);
+    });
+
+    transferFromWhoEl.addEventListener('change', () => {
+      populateTransferAccounts(transferFromWhoEl.value, transferToWhoEl.value);
+    });
+    transferToWhoEl.addEventListener('change', () => {
+      populateTransferAccounts(transferFromWhoEl.value, transferToWhoEl.value);
+    });
+
+    // ===== Status helpers =====
+    function setStatus(msg, ok=true) {
+      statusEl.textContent = msg;
+      statusEl.classList.remove('hidden','error','success');
+      statusEl.classList.add(ok ? 'success' : 'error','banner');
+    }
+
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      showPath('');
+      statusEl.classList.add('hidden');
+      clearOptions(incomeDestEl);
+      clearOptions(expensePaidFromEl);
+      clearOptions(fromAccountEl);
+      clearOptions(toAccountEl);
+    });
+
+    // ===== Submit handler =====
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!SCRIPT_URL) {
+        setStatus('Missing Web App URL. Open "Connection Settings" and paste your Apps Script Web App URL.', false);
+        return;
+      }
+
+      const who = whoEl.value;
+      const cat = categoryEl.value;
+      if (!who || !cat) {
+        setStatus('Please select both "Who" and "Category".', false);
+        return;
+      }
+
+      // Simple required check on visible fields
+      const reqIds = requiredByPath[cat] || [];
+      for (const id of reqIds) {
+        const el = document.getElementById(id);
+        if (!el || !el.value) {
+          el && el.focus();
+          setStatus('Please complete the required fields for this section.', false);
+          return;
+        }
+      }
+
+      document.getElementById('localTimestamp').value = new Date().toISOString();
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.path = cat;
+      data.submitter = who;
+
+      try {
+        setStatus('Submitting…');
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        setStatus('Saved! Entry appended to Google Sheet.', true);
+        form.reset();
+        showPath('');
+        clearOptions(incomeDestEl);
+        clearOptions(expensePaidFromEl);
+        clearOptions(fromAccountEl);
+        clearOptions(toAccountEl);
+      } catch (err) {
+        console.error(err);
+        setStatus('Failed to submit. Please check the Web App URL and try again.', false);
+      }
+    });
+  </script>
+</body>
+</html>
