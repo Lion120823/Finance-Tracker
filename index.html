@@ -1,515 +1,566 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Finance Tracker — Income / Expense / Transfers / Investment / Giving (v7)</title>
-  <style>
-    * {{ box-sizing: border-box; }}
-    body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background: #f7f7f8; color: #0f172a; }}
-    header {{ position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 20px; z-index: 10; }}
-    h1 {{ margin: 0; font-size: 20px; }}
-    main {{ max-width: 1000px; margin: 20px auto; padding: 0 16px 40px; }}
-    .card {{ background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }}
-    .group {{ margin: 12px 0; }}
-    label {{ display: block; font-weight: 600; margin-bottom: 6px; }}
-    select, input[type="text"], input[type="number"], textarea {{ width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 10px; background: #fff; font: inherit; }}
-    textarea {{ min-height: 80px; }}
-    .row {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
-    .hidden {{ display: none !important; }}
-    .divider {{ height: 1px; background: #e5e7eb; margin: 16px 0; }}
-    .muted {{ color: #6b7280; font-size: 13px; }}
-    button {{ display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid #1f6feb; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }}
-    button.secondary {{ background: #fff; color: #111; border-color: #d1d5db; }}
-    .banner {{ padding: 10px 12px; border-radius: 10px; margin-top: 10px; }}
-    .success {{ background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }}
-    .error {{ background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ian & Lala — Conditional Finance Form</title>
+<style>
+  :root{
+    --bg:#0f172a;         /* slate-900 */
+    --panel:#111827;      /* gray-900 */
+    --muted:#94a3b8;      /* slate-400 */
+    --text:#e5e7eb;       /* gray-200 */
+    --accent:#22d3ee;     /* cyan-400 */
+    --accent-2:#38bdf8;   /* sky-400 */
+    --danger:#fb7185;     /* rose-400 */
+    --ok:#34d399;         /* emerald-400 */
+    --ring:#334155;       /* slate-700 */
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background: linear-gradient(115deg, #0b1220, #0a0f1c 50%, #0b1220);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    line-height:1.35;
+  }
+  .wrap{max-width:980px; margin:48px auto; padding:0 20px;}
+  .card{
+    background: rgba(17,24,39,0.8);
+    border:1px solid var(--ring);
+    border-radius:16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
+  }
+  .card header{
+    padding:22px 22px 10px;
+    border-bottom:1px solid var(--ring);
+  }
+  h1{
+    margin:0 0 6px;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+  .sub{color:var(--muted); font-size:13px}
+  form{padding:18px 22px 22px;}
+  .grid{display:grid; gap:16px}
+  @media(min-width:780px){ .grid.cols-2{grid-template-columns:1fr 1fr} }
+  label{
+    display:block; font-size:13px; color:var(--muted); margin:0 0 6px;
+  }
+  select, input[type="number"], input[type="date"], textarea{
+    width:100%; background:#0b1220; color:var(--text);
+    border:1px solid var(--ring); border-radius:10px; padding:12px 12px;
+    outline:none; transition:.15s border-color, .15s box-shadow;
+  }
+  select:focus, input:focus, textarea:focus{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(34,211,238,.12) }
+  .row{display:grid; gap:12px}
+  .hide{display:none}
+  .section{
+    padding:14px;
+    border:1px dashed var(--ring);
+    border-radius:12px;
+    background: rgba(2,6,23,.35);
+  }
+  .section h3{margin:0 0 10px; font-size:15px; color:var(--accent-2)}
+  .help{font-size:12px; color:var(--muted); margin-top:6px}
+  .actions{display:flex; gap:12px; margin-top:12px; align-items:center}
+  button{
+    appearance:none; border:1px solid transparent; border-radius:12px; padding:12px 16px;
+    font-weight:600; cursor:pointer; transition:.15s transform,.15s background,.15s border-color,.15s color;
+  }
+  .primary{ background:linear-gradient(90deg, var(--accent), var(--accent-2)); color:#001018 }
+  .primary:hover{ transform:translateY(-1px) }
+  .ghost{ background:transparent; border-color:var(--ring); color:var(--text) }
+  .ghost:hover{ border-color:var(--accent-2); color:var(--accent-2) }
+  .msg{margin-top:12px; font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--ring)}
+  .ok{ color:#052e1c; background:rgba(52,211,153,.15); border-color:rgba(52,211,153,.35) }
+  .err{ color:#3f0a12; background:rgba(251,113,133,.15); border-color:rgba(251,113,133,.35) }
+  .req::after{content:" *"; color:var(--danger)}
+  .inline{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .pill{font-size:11px; color:var(--muted); border:1px solid var(--ring); border-radius:999px; padding:3px 8px}
+  .optgroup{color:#93c5fd}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Finance Tracker (v7)</h1>
-    <div class="muted">Who → Category → adaptive questions • Connected to your Google Apps Script</div>
-  </header>
+<div class="wrap">
+  <div class="card">
+    <header>
+      <h1>Income / Expense / Transfer Tracker</h1>
+      <div class="sub">Pick who is filing, then the category. Fields will adjust automatically.</div>
+    </header>
 
-  <main>
-    <section class="card">
-      <form id="trackerForm" novalidate>
-        <!-- 1) Who -->
-        <div class="group">
-          <label for="who">1) Who are you?</label>
+    <form id="finance-form" novalidate>
+      <!-- Core selectors -->
+      <div class="grid cols-2">
+        <div class="row">
+          <label for="who" class="req">Who are you?</label>
           <select id="who" name="who" required>
-            <option value="">-- Select --</option>
+            <option value="" disabled selected>— Select —</option>
             <option value="Lala">Lala</option>
             <option value="Ian">Ian</option>
           </select>
         </div>
 
-        <!-- 2) Category -->
-        <div class="group">
-          <label for="category">2) Category</label>
+        <div class="row">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" />
+        </div>
+
+        <div class="row">
+          <label for="category" class="req">Category</label>
           <select id="category" name="category" required>
-            <option value="">-- Select --</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-            <option value="transfers">Transfers</option>
-            <option value="investment">Investment</option>
-            <option value="giving">Giving</option>
+            <option value="" disabled selected>— Select —</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+            <option value="Transfers">Transfers</option>
+            <option value="Investment">Investment</option>
+            <option value="Giving">Giving</option>
           </select>
         </div>
 
-        <!-- INCOME -->
-        <div id="incomeGroup" class="hidden">
-          <div class="divider"></div>
-          <h3>Income</h3>
+        <div class="row">
+          <label for="amount" class="req">Amount</label>
+          <input type="number" id="amount" name="amount" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required />
+        </div>
+      </div>
+
+      <!-- INCOME -->
+      <div id="sec-income" class="section hide">
+        <h3>Income Details</h3>
+        <div class="grid cols-2">
           <div class="row">
-            <div class="group">
-              <label for="incomeType">3) Income Type</label>
-              <select id="incomeType" name="income_type">
-                <option value="">-- Select --</option>
-                <option>Salary</option>
-                <option>Commission</option>
-                <option>Extra Fund</option>
-                <option>Receivables</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="incomeAccount">4) Kept in</label>
-              <select id="incomeAccount" name="income_account">
-                <option value="">-- Select --</option>
-              </select>
-              <div class="muted">Savings/Wallets under the selected person, including Cash.</div>
-            </div>
+            <label class="req" for="incomeType">Income Type</label>
+            <select id="incomeType" name="incomeType" required>
+              <option value="" disabled selected>— Select —</option>
+              <option>Salary</option>
+              <option>Commission</option>
+              <option>Extra Fund</option>
+              <option>Receivables</option>
+            </select>
           </div>
-          <div class="group">
-            <label for="incomeAmount">5) Amount (PHP)</label>
-            <input type="number" id="incomeAmount" name="income_amount" min="1" inputmode="numeric" />
+          <div class="row">
+            <label class="req" for="keptIn">Kept in (Destination Account)</label>
+            <select id="keptIn" name="keptIn" required></select>
+            <div class="help">Populates with the selected person’s accounts.</div>
           </div>
         </div>
+      </div>
 
-        <!-- EXPENSE -->
-        <div id="expenseGroup" class="hidden">
-          <div class="divider"></div>
-          <h3>Expense</h3>
+      <!-- EXPENSE -->
+      <div id="sec-expense" class="section hide">
+        <h3>Expense Details</h3>
+        <div class="grid cols-2">
           <div class="row">
-            <div class="group">
-              <label for="expenseCategory">3) Expense Category</label>
-              <select id="expenseCategory" name="expense_category">
-                <option value="">-- Select --</option>
-                <option>Mortgage / Housing Loan</option>
-                <option>Utilities & Bills</option>
-                <option>Car / Transportation</option>
-                <option>Debt & Payables</option>
-                <option>Food Groceries</option>
-                <option>Non-Food Groceries</option>
-                <option>Pets</option>
-                <option>Medical & Maintenance Medications</option>
-                <option>Dining Out / Entertainment</option>
-                <option>Clothing & Shopping</option>
-                <option>Travel / Leisure Fund</option>
-                <option>Socials / Gifts / Small rewards / Minor Emergencies</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="expenseFrom">Paid From (Account)</label>
-              <select id="expenseFrom" name="expense_from">
-                <option value="">-- Select --</option>
-              </select>
-              <div class="muted">Savings/Wallets or Credit Cards under the selected person.</div>
-            </div>
+            <label class="req" for="expenseType">Expense Category</label>
+            <select id="expenseType" name="expenseType" required>
+              <option value="" disabled selected>— Select —</option>
+              <option>Mortgage / Housing Loan</option>
+              <option>Utilities & Bills</option>
+              <option>Car / Transportation</option>
+              <option>Debt & Payables</option>
+              <option>Food Groceries</option>
+              <option>Non-Food Groceries</option>
+              <option>Pets</option>
+              <option>Medical & Maintenance Medications</option>
+              <option>Dining Out / Entertainment</option>
+              <option>Clothing & Shopping</option>
+              <option>Travel / Leisure Fund</option>
+              <option>Socials / Gifts / Small rewards / Minor Emergencies</option>
+            </select>
           </div>
           <div class="row">
-            <div class="group">
-              <label for="expenseAmount">Amount (PHP)</label>
-              <input type="number" id="expenseAmount" name="expense_amount" min="1" inputmode="numeric" />
-            </div>
-            <div class="group">
-              <label for="expenseNote">Note</label>
-              <input type="text" id="expenseNote" name="expense_note" placeholder="e.g., merchant, billing month" />
-            </div>
+            <label class="req" for="expenseFrom">Paid From (Source Account or Card)</label>
+            <select id="expenseFrom" name="expenseFrom" required></select>
           </div>
         </div>
+        <div class="row">
+          <label for="note">Note</label>
+          <textarea id="note" name="note" rows="3" placeholder="Details, merchant, reference, etc. (optional)"></textarea>
+        </div>
+      </div>
 
-        <!-- TRANSFERS -->
-        <div id="transfersGroup" class="hidden">
-          <div class="divider"></div>
-          <h3>Transfers</h3>
-
-          <div class="group">
-            <label for="transferType">What type of Transfer?</label>
-            <select id="transferType" name="transfer_type">
-              <option value="">-- Select --</option>
-              <option value="fund">Fund Transfer</option>
-              <option value="withdrawal">Withdrawal</option>
+      <!-- TRANSFERS -->
+      <div id="sec-transfer" class="section hide">
+        <h3>Transfer Details</h3>
+        <div class="grid cols-2">
+          <div class="row">
+            <label class="req" for="transferType">Type of Transfer</label>
+            <select id="transferType" name="transferType" required>
+              <option value="" disabled selected>— Select —</option>
+              <option>Fund Transfer</option>
+              <option>Withdrawal</option>
+            </select>
+          </div>
+          <div class="row">
+            <label class="req" for="fromWho">From — Person</label>
+            <select id="fromWho" name="fromWho" required>
+              <option value="" disabled selected>— Select —</option>
+              <option value="Lala">Lala</option>
+              <option value="Ian">Ian</option>
             </select>
           </div>
 
           <div class="row">
-            <div class="group">
-              <label for="trFromWho">From — Who?</label>
-              <select id="trFromWho" name="tr_from_who">
-                <option value="">-- Select --</option>
-                <option value="Lala">Lala</option>
-                <option value="Ian">Ian</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="trFromAccount">From Which Account?</label>
-              <select id="trFromAccount" name="tr_from_account">
-                <option value="">-- Select --</option>
-              </select>
-            </div>
+            <label class="req" for="fromAccount">From — Which Account?</label>
+            <select id="fromAccount" name="fromAccount" required></select>
           </div>
 
           <div class="row">
-            <div class="group">
-              <label for="trToWho">To — Who?</label>
-              <select id="trToWho" name="tr_to_who">
-                <option value="">-- Select --</option>
-                <option value="Lala">Lala</option>
-                <option value="Ian">Ian</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="trToAccount">To Which Account?</label>
-              <select id="trToAccount" name="tr_to_account">
-                <option value="">-- Select --</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="group">
-              <label for="trAmount">Amount (PHP)</label>
-              <input type="number" id="trAmount" name="tr_amount" min="1" inputmode="numeric" />
-            </div>
-            <div class="group">
-              <label for="trNote">Note</label>
-              <input type="text" id="trNote" name="tr_note" placeholder="e.g., pocket-to-pocket, cash withdrawal" />
-            </div>
-          </div>
-          <div class="muted">Tip: For Withdrawals, the form will auto-set destination to your Cash.</div>
-        </div>
-
-        <!-- INVESTMENT -->
-        <div id="investmentGroup" class="hidden">
-          <div class="divider"></div>
-          <h3>Investment</h3>
-          <div class="row">
-            <div class="group">
-              <label for="invFromWho">From — Who?</label>
-              <select id="invFromWho" name="inv_from_who">
-                <option value="">-- Select --</option>
-                <option value="Lala">Lala</option>
-                <option value="Ian">Ian</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="invFromAccount">From Which Account?</label>
-              <select id="invFromAccount" name="inv_from_account">
-                <option value="">-- Select --</option>
-              </select>
-            </div>
-          </div>
-          <div class="group">
-            <label for="invToAccount">To Which Account?</label>
-            <select id="invToAccount" name="inv_to_account">
-              <option value="">-- Select --</option>
+            <label class="req" for="toWho">To — Person</label>
+            <select id="toWho" name="toWho" required>
+              <option value="" disabled selected>— Select —</option>
+              <option value="Lala">Lala</option>
+              <option value="Ian">Ian</option>
             </select>
-            <div class="muted">Investment accounts: IBKR, GoTrade, PSE.</div>
           </div>
-        </div>
 
-        <!-- GIVING -->
-        <div id="givingGroup" class="hidden">
-          <div class="divider"></div>
-          <h3>Giving</h3>
           <div class="row">
-            <div class="group">
-              <label for="givingFromWho">From — Who?</label>
-              <select id="givingFromWho" name="giving_from_who">
-                <option value="">-- Select --</option>
-                <option value="Lala">Lala</option>
-                <option value="Ian">Ian</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="givingFromAccount">From Which Account?</label>
-              <select id="givingFromAccount" name="giving_from_account">
-                <option value="">-- Select --</option>
-              </select>
-            </div>
+            <label class="req" for="toAccount">To — Which Account?</label>
+            <select id="toAccount" name="toAccount" required></select>
+          </div>
+        </div>
+        <div class="row">
+          <label for="transferNote">Note</label>
+          <textarea id="transferNote" name="transferNote" rows="3" placeholder="Reason / reference (optional)"></textarea>
+        </div>
+      </div>
+
+      <!-- INVESTMENT -->
+      <div id="sec-investment" class="section hide">
+        <h3>Investment Details</h3>
+        <div class="grid cols-2">
+          <div class="row">
+            <label class="req" for="invFromWho">From — Person</label>
+            <select id="invFromWho" name="invFromWho" required>
+              <option value="" disabled selected>— Select —</option>
+              <option value="Lala">Lala</option>
+              <option value="Ian">Ian</option>
+            </select>
           </div>
           <div class="row">
-            <div class="group">
-              <label for="givingPurpose">For?</label>
-              <select id="givingPurpose" name="giving_purpose">
-                <option value="">-- Select --</option>
-                <option>Tithes</option>
-                <option>Donations</option>
-                <option>Care Fund</option>
-              </select>
-            </div>
-            <div class="group">
-              <label for="givingAmount">Amount (PHP)</label>
-              <input type="number" id="givingAmount" name="giving_amount" min="1" inputmode="numeric" />
-            </div>
+            <label class="req" for="invFromAccount">From — Which Account?</label>
+            <select id="invFromAccount" name="invFromAccount" required></select>
+          </div>
+          <div class="row">
+            <label class="req" for="invToAccount">To — Which Investment?</label>
+            <select id="invToAccount" name="invToAccount" required>
+              <option value="" disabled selected>— Select —</option>
+              <option>IBKR</option>
+              <option>GoTrade</option>
+              <option>PSE</option>
+            </select>
           </div>
         </div>
+      </div>
 
-        <div class="divider"></div>
-        <div id="status" class="banner hidden"></div>
-        <div class="group" style="display:flex; gap:8px; align-items:center;">
-          <button type="submit">Submit to Google Sheet</button>
-          <button type="button" id="resetBtn" class="secondary">Reset</button>
+      <!-- GIVING -->
+      <div id="sec-giving" class="section hide">
+        <h3>Giving Details</h3>
+        <div class="grid cols-2">
+          <div class="row">
+            <label class="req" for="givFromWho">From — Person</label>
+            <select id="givFromWho" name="givFromWho" required>
+              <option value="" disabled selected>— Select —</option>
+              <option value="Lala">Lala</option>
+              <option value="Ian">Ian</option>
+            </select>
+          </div>
+          <div class="row">
+            <label class="req" for="givFromAccount">From — Which Account?</label>
+            <select id="givFromAccount" name="givFromAccount" required></select>
+          </div>
+          <div class="row">
+            <label class="req" for="givFor">For?</label>
+            <select id="givFor" name="givFor" required>
+              <option value="" disabled selected>— Select —</option>
+              <option>Tithes</option>
+              <option>Donations</option>
+              <option>Care Fund</option>
+            </select>
+          </div>
         </div>
+      </div>
 
-        <input type="hidden" id="localTimestamp" name="localTimestamp" />
-      </form>
-    </section>
-  </main>
+      <div class="actions">
+        <button type="submit" class="primary">Submit Entry</button>
+        <button type="button" class="ghost" id="resetBtn">Reset</button>
+        <span class="inline">
+          <span class="pill">Auto-validated</span>
+          <span class="pill">Posts to Google Apps Script</span>
+        </span>
+      </div>
 
-  <script>
-    // ===== Config =====
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVvh2AjGmDeGQXHfizJDbVwfTAp1zAlc7R-_jJnD_llzD7HrbsbUFwCBEZJsNOLach/exec";
+      <div id="message" class="msg hide"></div>
 
-    // ===== Data =====
-    const savings = {{
-      Lala: ['PNB Savings','UB Payroll','BDO Commission','GCASH (Digital pocket)','Paymaya (Digital pocket)','SeaBank (Digital Pocket)','CIMB','UNO Digital','BPI joint','Cash'],
-      Ian:  ['UB Payroll','BDO Commission','GCASH (digital pocket)','BPI individual','PNB Savings','CIMB','BPI joint','Cash']
-    }};
-    const creditCards = {{
-      Lala: ['PNB Ze-Lo','UB Basic Blue','UB Gold Go Rewards','UB Platinum','BDO Visa Classic'],
-      Ian:  ['BPI Blue','BPI Gold','UB Platinum']
-    }};
-    const investAccounts = ['IBKR','GoTrade','PSE'];
+      <!-- Endpoint (hardcoded) -->
+      <input type="hidden" id="endpoint" value="https://script.google.com/macros/s/AKfycbxVvh2AjGmDeGQXHfizJDbVwfTAp1zAlc7R-_jJnD_llzD7HrbsbUFwCBEZJsNOLach/exec" />
+    </form>
+  </div>
+</div>
 
-    // ===== DOM =====
-    const whoEl = document.getElementById('who');
-    const categoryEl = document.getElementById('category');
-    const statusEl = document.getElementById('status');
-    const form = document.getElementById('trackerForm');
+<script>
+/* =========================
+   Data Catalogs
+========================= */
+const accounts = {
+  Lala: {
+    savings: [
+      "PNB Savings",
+      "UB Payroll",
+      "BDO Commission",
+      "GCASH (Digital pocket)",
+      "Paymaya (Digital pocket)",
+      "SeaBank (Digital Pocket)",
+      "CIMB",
+      "UNO Digital",
+      "BPI joint",
+      "Cash"
+    ],
+    credit: [
+      "PNB Ze-Lo",
+      "UB Basic Blue",
+      "UB Gold Go Rewards",
+      "UB Platinum",
+      "BDO Visa Classic"
+    ]
+  },
+  Ian: {
+    savings: [
+      "UB Payroll",
+      "BDO Commission",
+      "GCASH (digital pocket)",
+      "BPI individual",
+      "PNB Savings",
+      "CIMB",
+      "BPI joint",
+      "Cash"
+    ],
+    credit: [
+      "BPI Blue",
+      "BPI Gold",
+      "UB Platinum"
+    ]
+  },
+  investments: ["IBKR","GoTrade","PSE"]
+};
 
-    // Income
-    const incomeGroup = document.getElementById('incomeGroup');
-    const incomeAccountEl = document.getElementById('incomeAccount');
+/* =========================
+   Helpers
+========================= */
+const byId = (id) => document.getElementById(id);
+const endpoint = () => byId("endpoint").value;
 
-    // Expense
-    const expenseGroup = document.getElementById('expenseGroup');
-    const expenseFromEl = document.getElementById('expenseFrom');
+function clearOptions(sel){
+  while(sel.options.length) sel.remove(0);
+}
+function addPlaceholder(sel, text="— Select —"){
+  const o = document.createElement("option");
+  o.value = ""; o.textContent = text; o.disabled = true; o.selected = true;
+  sel.appendChild(o);
+}
+function fillAccounts(selectEl, person, {includeSavings=true, includeCards=false}={}){
+  clearOptions(selectEl);
+  addPlaceholder(selectEl);
+  if(!person) return;
 
-    // Transfers
-    const transfersGroup = document.getElementById('transfersGroup');
-    const transferTypeEl = document.getElementById('transferType');
-    const trFromWhoEl = document.getElementById('trFromWho');
-    const trFromAccountEl = document.getElementById('trFromAccount');
-    const trToWhoEl = document.getElementById('trToWho');
-    const trToAccountEl = document.getElementById('trToAccount');
+  if(includeSavings){
+    const g1 = document.createElement("optgroup");
+    g1.label = "Savings & Digital";
+    accounts[person].savings.forEach(a=>{
+      const o=document.createElement("option"); o.text=a; selectEl.add(o);
+    });
+    selectEl.appendChild(g1);
+  }
+  if(includeCards){
+    const g2 = document.createElement("optgroup");
+    g2.label = "Credit Cards";
+    accounts[person].credit.forEach(a=>{
+      const o=document.createElement("option"); o.text=a; selectEl.add(o);
+    });
+    selectEl.appendChild(g2);
+  }
+}
 
-    // Investment
-    const investmentGroup = document.getElementById('investmentGroup');
-    const invFromWhoEl = document.getElementById('invFromWho');
-    const invFromAccountEl = document.getElementById('invFromAccount');
-    const invToAccountEl = document.getElementById('invToAccount');
+function show(node){ node.classList.remove("hide"); }
+function hide(node){ node.classList.add("hide"); }
+function setMsg(type, text){
+  const box = byId("message");
+  box.className = "msg " + (type === "ok" ? "ok" : "err");
+  box.textContent = text;
+  show(box);
+}
+function clearMsg(){ hide(byId("message")); }
 
-    // Giving
-    const givingGroup = document.getElementById('givingGroup');
-    const givingFromWhoEl = document.getElementById('givingFromWho');
-    const givingFromAccountEl = document.getElementById('givingFromAccount');
+/* =========================
+   Section Visibility
+========================= */
+const secIncome    = byId("sec-income");
+const secExpense   = byId("sec-expense");
+const secTransfer  = byId("sec-transfer");
+const secInvest    = byId("sec-investment");
+const secGiving    = byId("sec-giving");
 
-    // ===== Helpers =====
-    function clearOptions(sel) {{
-      while (sel.options.length > 1) sel.remove(1);
-    }}
+function updateSections(){
+  const cat = byId("category").value;
+  [secIncome,secExpense,secTransfer,secInvest,secGiving].forEach(hide);
+  if(cat==="Income")     show(secIncome);
+  if(cat==="Expense")    show(secExpense);
+  if(cat==="Transfers")  show(secTransfer);
+  if(cat==="Investment") show(secInvest);
+  if(cat==="Giving")     show(secGiving);
+}
 
-    function fillSavings(sel, who) {{
-      clearOptions(sel);
-      if (!who) return;
-      (savings[who] || []).forEach(acc => {{
-        const o = document.createElement('option');
-        o.text = acc; o.value = acc;
-        sel.add(o);
-      }});
-    }}
+/* =========================
+   Dynamic Select Logic
+========================= */
+function onWhoChange(){
+  const person = byId("who").value;
 
-    function fillPaidFrom(sel, who) {{
-      sel.innerHTML = '<option value="">-- Select --</option>';
-      if (!who) return;
-      const grp1 = document.createElement('optgroup');
-      grp1.label = who + ' — Savings & Wallets';
-      (savings[who] || []).forEach(acc => {{
-        const o = document.createElement('option'); o.text = acc; o.value = acc; grp1.appendChild(o);
-      }});
-      const grp2 = document.createElement('optgroup');
-      grp2.label = who + ' — Credit Cards';
-      (creditCards[who] || []).forEach(acc => {{
-        const o = document.createElement('option'); o.text = acc; o.value = acc; grp2.appendChild(o);
-      }});
-      sel.appendChild(grp1);
-      sel.appendChild(grp2);
-    }}
+  // Income: destination account
+  fillAccounts(byId("keptIn"), person, {includeSavings:true, includeCards:false});
 
-    function fillInvestDest(sel) {{
-      clearOptions(sel);
-      investAccounts.forEach(acc => {{
-        const o = document.createElement('option'); o.text = acc; o.value = acc; sel.add(o);
-      }});
-    }}
+  // Expense: source account (allow both savings & cards)
+  fillAccounts(byId("expenseFrom"), person, {includeSavings:true, includeCards:true});
+}
 
-    function setStatus(msg, ok=true) {{
-      statusEl.textContent = msg;
-      statusEl.classList.remove('hidden','success','error');
-      statusEl.classList.add('banner', ok ? 'success' : 'error');
-    }}
+function onTransferFromWhoChange(){
+  const who = byId("fromWho").value;
+  fillAccounts(byId("fromAccount"), who, {includeSavings:true, includeCards:true});
+}
+function onTransferToWhoChange(){
+  const who = byId("toWho").value;
+  fillAccounts(byId("toAccount"), who, {includeSavings:true, includeCards:true});
+}
 
-    function showOnly(...els) {{
-      [incomeGroup, expenseGroup, transfersGroup, investmentGroup, givingGroup]
-        .forEach(el => el.classList.add('hidden'));
-      els.forEach(el => el.classList.remove('hidden'));
-    }}
+function onInvestmentFromWhoChange(){
+  const who = byId("invFromWho").value;
+  fillAccounts(byId("invFromAccount"), who, {includeSavings:true, includeCards:true});
+}
 
-    // ===== Wiring =====
-    categoryEl.addEventListener('change', () => {{
-      const v = categoryEl.value;
-      if (v === 'income') showOnly(incomeGroup);
-      else if (v === 'expense') showOnly(expenseGroup);
-      else if (v === 'transfers') showOnly(transfersGroup);
-      else if (v === 'investment') showOnly(investmentGroup);
-      else if (v === 'giving') showOnly(givingGroup);
-      else showOnly();
-    }});
+function onGivingFromWhoChange(){
+  const who = byId("givFromWho").value;
+  fillAccounts(byId("givFromAccount"), who, {includeSavings:true, includeCards:true});
+}
 
-    whoEl.addEventListener('change', () => {{
-      const who = whoEl.value;
-      fillSavings(incomeAccountEl, who);
-      fillPaidFrom(expenseFromEl, who);
-    }});
+/* =========================
+   Validation
+========================= */
+function validate(){
+  const who = byId("who").value;
+  const cat = byId("category").value;
+  const amt = byId("amount").value;
 
-    // Transfers logic
-    trFromWhoEl.addEventListener('change', () => {{
-      const who = trFromWhoEl.value;
-      fillSavings(trFromAccountEl, who);
-      if (transferTypeEl.value === 'withdrawal') {{
-        trToWhoEl.value = who;
-        trToWhoEl.disabled = true;
-        trToAccountEl.innerHTML = '<option value="">-- Select --</option>';
-        const o = document.createElement('option'); o.text = 'Cash'; o.value = 'Cash'; trToAccountEl.add(o);
-        trToAccountEl.value = 'Cash';
-        trToAccountEl.disabled = true;
-      }} else {{
-        trToWhoEl.disabled = false;
-        trToAccountEl.disabled = false;
-        trToAccountEl.innerHTML = '<option value="">-- Select --</option>';
-      }}
-    }});
+  if(!who) return "Please select who is filing (Ian or Lala).";
+  if(!cat) return "Please select a category.";
+  if(!amt || Number(amt) <= 0) return "Please enter a valid amount greater than 0.";
 
-    trToWhoEl.addEventListener('change', () => {{
-      if (!trToWhoEl.value) return;
-      fillSavings(trToAccountEl, trToWhoEl.value);
-    }});
+  if(cat==="Income"){
+    if(!byId("incomeType").value) return "Select an Income Type.";
+    if(!byId("keptIn").value) return "Select a destination account (Kept in).";
+  }
+  if(cat==="Expense"){
+    if(!byId("expenseType").value) return "Select an Expense Category.";
+    if(!byId("expenseFrom").value) return "Select the account/card used for payment.";
+  }
+  if(cat==="Transfers"){
+    if(!byId("transferType").value) return "Select a Transfer Type.";
+    if(!byId("fromWho").value) return "Select From — Person.";
+    if(!byId("fromAccount").value) return "Select From — Which Account.";
+    if(!byId("toWho").value) return "Select To — Person.";
+    if(!byId("toAccount").value) return "Select To — Which Account.";
+  }
+  if(cat==="Investment"){
+    if(!byId("invFromWho").value) return "Select Investment From — Person.";
+    if(!byId("invFromAccount").value) return "Select Investment From — Which Account.";
+    if(!byId("invToAccount").value) return "Select the Investment destination.";
+  }
+  if(cat==="Giving"){
+    if(!byId("givFromWho").value) return "Select Giving From — Person.";
+    if(!byId("givFromAccount").value) return "Select Giving From — Which Account.";
+    if(!byId("givFor").value) return "Select what the giving is for.";
+  }
+  return null;
+}
 
-    transferTypeEl.addEventListener('change', () => {{
-      const type = transferTypeEl.value;
-      if (type === 'withdrawal') {{
-        // Lock destination to Cash under the same person
-        const who = trFromWhoEl.value;
-        if (who) {{
-          trToWhoEl.value = who;
-        }}
-        trToWhoEl.disabled = true;
-        trToAccountEl.innerHTML = '<option value="">-- Select --</option>';
-        const o = document.createElement('option'); o.text = 'Cash'; o.value = 'Cash'; trToAccountEl.add(o);
-        trToAccountEl.value = 'Cash';
-        trToAccountEl.disabled = true;
-      }} else if (type === 'fund') {{
-        trToWhoEl.disabled = false;
-        trToAccountEl.disabled = false;
-        trToAccountEl.innerHTML = '<option value="">-- Select --</option>';
-        if (trToWhoEl.value) fillSavings(trToAccountEl, trToWhoEl.value);
-      }} else {{
-        trToWhoEl.disabled = false;
-        trToAccountEl.disabled = false;
-      }}
-    }});
+/* =========================
+   Submit
+========================= */
+async function submitForm(e){
+  e.preventDefault();
+  clearMsg();
 
-    // Investment wiring
-    invFromWhoEl.addEventListener('change', () => {{
-      fillSavings(invFromAccountEl, invFromWhoEl.value);
-    }});
-    fillInvestDest(invToAccountEl);
+  const err = validate();
+  if(err){ setMsg("err", err); return; }
 
-    // Giving wiring
-    givingFromWhoEl.addEventListener('change', () => {{
-      fillSavings(givingFromAccountEl, givingFromWhoEl.value);
-    }});
+  const form = byId("finance-form");
+  const fd = new FormData(form);
 
-    // Reset button
-    document.getElementById('resetBtn').addEventListener('click', () => {{
-      form.reset();
-      showOnly();
-      statusEl.classList.add('hidden');
-      statusEl.textContent = '';
-      // clear dynamic selects
-      clearOptions(incomeAccountEl);
-      expenseFromEl.innerHTML = '<option value="">-- Select --</option>';
-      clearOptions(trFromAccountEl); clearOptions(trToAccountEl);
-    }});
+  // Derive normalized fields for easier processing on the Sheet side
+  // (You can rename these to match your Apps Script handler.)
+  fd.set("submitted_at", new Date().toISOString());
 
-    // Submit
-    form.addEventListener('submit', async (e) => {{
-      e.preventDefault();
-      const who = whoEl.value;
-      const cat = categoryEl.value;
-      if (!who || !cat) {{ setStatus('Please select "Who" and "Category".', false); return; }}
+  // For clarity, also add a unified "flow" field
+  fd.set("flow", byId("category").value);
 
-      const reqIds = [];
-      function need(id) {{ const el = document.getElementById(id); if (!el || !el.value) reqIds.push(id); }}
+  try{
+    const res = await fetch(endpoint(), {
+      method: "POST",
+      body: fd,
+      // Do NOT set Content-Type; let the browser define multipart boundary.
+      mode: "no-cors" // GAS often works best with no-cors for simple logging
+    });
 
-      if (cat === 'income') {{
-        ['incomeType','incomeAccount','incomeAmount'].forEach(need);
-      }} else if (cat === 'expense') {{
-        ['expenseCategory','expenseFrom','expenseAmount'].forEach(need);
-      }} else if (cat === 'transfers') {{
-        ['transferType','trFromWho','trFromAccount','trAmount'].forEach(need);
-        if (document.getElementById('transferType').value === 'fund') {{
-          ['trToWho','trToAccount'].forEach(need);
-        }} else if (document.getElementById('transferType').value === 'withdrawal') {{
-          // To will be auto-set to Cash; still ensure values exist
-          ['trToWho','trToAccount'].forEach(need);
-        }}
-      }} else if (cat === 'investment') {{
-        ['invFromWho','invFromAccount','invToAccount'].forEach(need);
-      }} else if (cat === 'giving') {{
-        ['givingFromWho','givingFromAccount','givingPurpose','givingAmount'].forEach(need);
-      }}
+    // With no-cors we cannot read status; assume success if no error thrown.
+    setMsg("ok", "Submitted! Your entry has been sent to the Google Sheet.");
+    form.reset();
+    updateSections();
+    // Clear dynamic selects after reset
+    ["keptIn","expenseFrom","fromAccount","toAccount","invFromAccount","givFromAccount"].forEach(id=>{
+      clearOptions(byId(id)); addPlaceholder(byId(id));
+    });
+  }catch(ex){
+    console.error(ex);
+    setMsg("err", "Submission failed. Please check your connection or Apps Script deployment.");
+  }
+}
 
-      if (reqIds.length) {{
-        setStatus('Please complete all required fields.', false);
-        const first = document.getElementById(reqIds[0]); if (first) first.focus();
-        return;
-      }}
+/* =========================
+   Wire-up
+========================= */
+window.addEventListener("DOMContentLoaded", ()=>{
+  // Defaults
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,"0");
+  const dd = String(today.getDate()).padStart(2,"0");
+  byId("date").value = `${yyyy}-${mm}-${dd}`;
 
-      document.getElementById('localTimestamp').value = new Date().toISOString();
-      const payload = Object.fromEntries(new FormData(form).entries());
-      payload.path = cat;
-      payload.submitter = who;
+  // Placeholders for dynamic selects
+  ["keptIn","expenseFrom","fromAccount","toAccount","invFromAccount","givFromAccount"].forEach(id=>{
+    addPlaceholder(byId(id));
+  });
 
-      try {{
-        setStatus('Submitting…', true);
-        await fetch(SCRIPT_URL, {{
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify(payload)
-        }});
-        setStatus('Saved! Row appended in Google Sheet.', true);
-        form.reset();
-        showOnly();
-      }} catch (err) {{
-        console.error(err);
-        setStatus('Failed to submit. Check your Web App URL and permissions.', false);
-      }}
-    }});
-  </script>
+  byId("who").addEventListener("change", onWhoChange);
+  byId("category").addEventListener("change", updateSections);
+
+  byId("fromWho").addEventListener("change", onTransferFromWhoChange);
+  byId("toWho").addEventListener("change", onTransferToWhoChange);
+
+  byId("invFromWho").addEventListener("change", onInvestmentFromWhoChange);
+  byId("givFromWho").addEventListener("change", onGivingFromWhoChange);
+
+  byId("finance-form").addEventListener("submit", submitForm);
+  byId("resetBtn").addEventListener("click", ()=>{
+    byId("finance-form").reset();
+    updateSections();
+    clearMsg();
+    ["keptIn","expenseFrom","fromAccount","toAccount","invFromAccount","givFromAccount"].forEach(id=>{
+      clearOptions(byId(id)); addPlaceholder(byId(id));
+    });
+  });
+});
+</script>
 </body>
 </html>
