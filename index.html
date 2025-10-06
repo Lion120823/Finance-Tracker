@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Ian & Lala — Income / Expense / Transfer / Investment / Giving (v4, connected)</title>
+  <title>Ian & Lala — Income / Expense / Transfers / Investment / Giving (v5)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --pad: 16px; }
@@ -36,8 +36,8 @@
 </head>
 <body>
   <header>
-    <h1>Income / Expense / Transfer / Investment / Giving</h1>
-    <div class="muted">Connected to your Apps Script deployment; ready to publish on GitHub Pages.</div>
+    <h1>Income / Expense / Transfers / Investment / Giving</h1>
+    <div class="muted">Who → Category → adaptive questions with person-specific accounts.</div>
   </header>
 
   <main>
@@ -60,7 +60,7 @@
             <option value="">-- Select --</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
-            <option value="transfer">Transfer</option>
+            <option value="transfer">Transfers</option>
             <option value="investment">Investment</option>
             <option value="giving">Giving</option>
           </select>
@@ -144,10 +144,10 @@
           </div>
         </div>
 
-        <!-- TRANSFER PATH -->
+        <!-- TRANSFERS PATH -->
         <div id="transferGroup" class="hidden">
           <div class="divider"></div>
-          <h3>Transfer</h3>
+          <h3>Transfers</h3>
           <div class="group">
             <label for="transferType">3) What type of Transfer?</label>
             <select id="transferType" name="transfer_type">
@@ -205,7 +205,7 @@
             </div>
           </div>
 
-          <!-- INVESTMENT (under Transfer) -->
+          <!-- INVESTMENT (under Transfers) -->
           <div id="investmentSubGroup" class="hidden">
             <div class="row">
               <div class="group">
@@ -338,9 +338,7 @@
     <section class="card" style="margin-top:16px;">
       <details open>
         <summary><strong>Connection Settings</strong> (pre-filled)</summary>
-        <p class="muted">
-          Your Web App URL is hard-coded below. You can still override it temporarily for testing.
-        </p>
+        <p class="muted">Your Web App URL is hard-coded below. You can still override it temporarily for testing.</p>
         <div class="row">
           <div class="group">
             <label for="scriptUrl">Web App URL</label>
@@ -385,7 +383,8 @@
         'SeaBank (Digital Pocket)',
         'CIMB',
         'UNO Digital',
-        'BPI joint'
+        'BPI joint',
+        'Cash'
       ],
       Ian: [
         'UB Payroll',
@@ -394,7 +393,8 @@
         'BPI individual',
         'PNB Savings',
         'CIMB',
-        'BPI joint'
+        'BPI joint',
+        'Cash'
       ]
     };
 
@@ -427,7 +427,7 @@
     const expenseGroup = document.getElementById('expenseGroup');
     const expensePaidFromEl = document.getElementById('expensePaidFrom');
 
-    // Transfer refs
+    // Transfers refs
     const transferGroup = document.getElementById('transferGroup');
     const transferTypeEl = document.getElementById('transferType');
     const fundGroup = document.getElementById('fundGroup');
@@ -453,6 +453,7 @@
     const givingFromWhoEl = document.getElementById('givingFromWho');
     const givingFromAccountEl = document.getElementById('givingFromAccount');
     const givingPurposeEl = document.getElementById('givingPurpose');
+    const givingAmountEl = document.getElementById('givingAmount');
 
     // Misc
     const statusEl = document.getElementById('status');
@@ -473,10 +474,6 @@
         opt.value = acc;
         incomeDestEl.appendChild(opt);
       });
-      const cash = document.createElement('option');
-      cash.textContent = 'Cash';
-      cash.value = 'Cash';
-      incomeDestEl.appendChild(cash);
     }
 
     function populateExpensePaidFrom(who) {
@@ -547,7 +544,7 @@
       const cat = categoryEl.value;
       if (cat === 'income') showOnly(incomeGroup);
       else if (cat === 'expense') showOnly(expenseGroup);
-      else if (cat === 'transfer') showOnly(transferGroup);
+      else if (cat === 'transfer' || cat === 'Transfers') showOnly(transferGroup);
       else if (cat === 'investment') showOnly(investmentGroup);
       else if (cat === 'giving') showOnly(givingGroup);
       else showOnly();
@@ -571,7 +568,7 @@
       populateSavingsSelect(fundToAccountEl, fundToWhoEl.value);
     });
 
-    // Investment under Transfer
+    // Investment under Transfers
     invSubFromWhoEl.addEventListener('change', () => {
       populateSavingsSelect(invSubFromAccountEl, invSubFromWhoEl.value);
     });
@@ -639,7 +636,7 @@
         ['incomeType','incomeDest','incomeAmount'].forEach(req);
       } else if (cat === 'expense') {
         ['expenseCategory','expensePaidFrom','expenseAmount'].forEach(req);
-      } else if (cat === 'transfer') {
+      } else if (cat === 'transfer' || cat === 'Transfers') {
         req('transferType');
         if (document.getElementById('transferType').value === 'fund') {
           ['fundFromWho','fundFromAccount','fundToWho','fundToAccount','fundAmount'].forEach(req);
